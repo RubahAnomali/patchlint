@@ -1,0 +1,7 @@
+services:
+  web:
+    image: nginx:1.27
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-default
+      - seccomp:./seccomp-nginx.json

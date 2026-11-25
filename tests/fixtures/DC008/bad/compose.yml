@@ -1,0 +1,6 @@
+services:
+  web:
+    image: nginx:1.27
+    security_opt:
+      - seccomp:unconfined
+      - apparmor:unconfined
