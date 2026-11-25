@@ -4,6 +4,8 @@ All notable changes are listed here. The format follows [Keep a Changelog](https
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-25
+
 ### Added
 - **docker-compose support:** `compose.yml`, `docker-compose.yml` and variants like `docker-compose.prod.yml` are scanned anywhere in the tree.
   - `DC001` service runs in privileged mode
@@ -29,5 +31,6 @@ First public release.
 - Configuration in `.patchlint.toml` or `[tool.patchlint]`: `disable`, `exclude` and per-rule `[severity]`, with strict validation.
 - `patchlint new-rule` scaffold for contributors; fixture-driven tests need no test code per rule.
 
-[Unreleased]: https://github.com/RubahAnomali/patchlint/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/RubahAnomali/patchlint/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/RubahAnomali/patchlint/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/RubahAnomali/patchlint/releases/tag/v0.1.0
