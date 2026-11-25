@@ -13,7 +13,9 @@ def test_cli_exit_codes(tmp_path: Path) -> None:
     bad = tmp_path / "Dockerfile"
     bad.write_text("FROM python:latest\n", encoding="utf-8")
     assert main(["scan", str(bad)]) == 1
-    bad.write_text("FROM python:3.12-slim\nUSER app\n", encoding="utf-8")
+    bad.write_text(
+        "FROM python:3.12-slim\nUSER app\nHEALTHCHECK CMD true\n", encoding="utf-8"
+    )
     assert main(["scan", str(bad)]) == 0
 
 
