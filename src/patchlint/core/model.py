@@ -70,6 +70,7 @@ class Rule:
     cwe: int | None
     filetype: str
     check: CheckFn
+    origin: str = "patchlint"  # the package that provides the rule (plugins set their own)
 
     @property
     def doc(self) -> str:

@@ -89,6 +89,10 @@ jobs:
 
 Code scanning is free for public repositories. The actions are pinned to commit SHAs, which is what rule GA001 asks for.
 
+## Rule plugins
+
+Company- or project-specific rules can live in their own package and are loaded automatically through the `patchlint.rules` entry point. See [docs/plugins.md](docs/plugins.md).
+
 ## Contribute in 30 minutes
 
 Each rule is one small file. Pick an issue labelled

@@ -50,7 +50,8 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.cmd == "list-rules":
         for r in load_rules().values():
-            print(f"{r.id}  {r.severity:<6}  {r.title}")
+            source = "" if r.origin == "patchlint" else f"  [plugin: {r.origin}]"
+            print(f"{r.id}  {r.severity:<6}  {r.title}{source}")
         return 0
 
     if args.cmd == "explain":
