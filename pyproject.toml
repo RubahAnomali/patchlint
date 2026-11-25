@@ -4,17 +4,34 @@ build-backend = "hatchling.build"
 
 [project]
 name = "patchlint"
-version = "0.1.0.dev0"
-description = "A beginner-friendly security linter for config files. Every finding explains why and how to fix it."
+dynamic = ["version"]
+description = "A beginner-friendly security linter for Dockerfiles and GitHub Actions workflows. Every finding explains why and how to fix it."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "RubahAnomali" }]
+keywords = ["security", "linter", "dockerfile", "github-actions", "sarif", "devsecops"]
 dependencies = ["pyyaml>=6.0", "tomli>=2.0; python_version < '3.11'"]
 classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Topic :: Security",
   "Topic :: Software Development :: Quality Assurance",
 ]
+
+[project.urls]
+Homepage = "https://github.com/RubahAnomali/patchlint"
+Issues = "https://github.com/RubahAnomali/patchlint/issues"
+Changelog = "https://github.com/RubahAnomali/patchlint/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.5", "mypy>=1.10", "types-PyYAML"]
@@ -22,8 +39,15 @@ dev = ["pytest>=8", "ruff>=0.5", "mypy>=1.10", "types-PyYAML"]
 [project.scripts]
 patchlint = "patchlint.cli:main"
 
+[tool.hatch.version]
+path = "src/patchlint/__init__.py"
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/patchlint"]
+
+# Only these go into the source package on PyPI (keeps local, untracked files out).
+[tool.hatch.build.targets.sdist]
+only-include = ["src", "tests", "README.md", "LICENSE", "CHANGELOG.md", "pyproject.toml"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
