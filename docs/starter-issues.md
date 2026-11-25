@@ -42,6 +42,18 @@ Model rules: `GA001_unpinned_action.py`, `GA002_script_injection.py`. Scaffold w
 - GA008 `secrets: inherit` passed to a reusable workflow from another repo
 - GA009 Self-hosted runner used on `pull_request` from forks (low, research first)
 
+## docker-compose rules (DC003 onward)
+
+Model rules: `DC001_privileged_container.py`, `DC002_docker_socket_mounted.py`. Scaffold with `patchlint new-rule DC0xx <name>`.
+
+- DC003 `network_mode: host`
+- DC004 Secrets in `environment` (names like PASSWORD, TOKEN, API_KEY with literal values)
+- DC005 `cap_add: [ALL]` or `SYS_ADMIN`
+- DC006 Image without a version tag or with `:latest`
+- DC007 `pid: host` or `ipc: host`
+- DC008 `security_opt` disables seccomp/AppArmor (`seccomp:unconfined`, `apparmor:unconfined`)
+- DC009 Database ports published on all interfaces (`"5432:5432"` instead of `"127.0.0.1:5432:5432"`)
+
 ## Features and tooling (`help wanted`)
 
 - `--severity` filter flag (`--min-severity high`)

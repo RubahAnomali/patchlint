@@ -4,12 +4,13 @@ A small, beginner-friendly security linter for config files. Every finding tells
 
 [![PyPI](https://img.shields.io/pypi/v/patchlint)](https://pypi.org/project/patchlint/) [![CI](https://github.com/RubahAnomali/patchlint/actions/workflows/ci.yml/badge.svg)](https://github.com/RubahAnomali/patchlint/actions/workflows/ci.yml)
 
-> Status: early (v0.1.0). Supports **Dockerfiles** and **GitHub Actions workflows**; docker-compose is on the [roadmap](ROADMAP.md).
+> Status: early (v0.1.0). Supports **Dockerfiles**, **GitHub Actions workflows** and **docker-compose files**. See the [roadmap](ROADMAP.md).
 
 | Files | Found by a directory scan | Rule prefix |
 |---|---|---|
 | Dockerfiles | `Dockerfile`, `Dockerfile.*`, `*.dockerfile` | `DL` |
 | GitHub Actions workflows | `.github/workflows/*.yml` / `*.yaml` | `GA` |
+| docker-compose files | `compose.yml`, `docker-compose.yml`, `docker-compose.*.yml` (any folder) | `DC` |
 
 ## Install and try
 
@@ -97,6 +98,7 @@ Each rule is one small file. Pick an issue labelled
 pip install -e ".[dev]"
 patchlint new-rule DL003 add_instead_of_copy   # Dockerfile rule + fixtures
 patchlint new-rule GA003 missing_permissions   # GitHub Actions rule + fixtures
+patchlint new-rule DC003 host_network          # docker-compose rule + fixtures
 # edit the rule, edit the two fixtures, then:
 pytest
 ```
@@ -109,6 +111,7 @@ Full walkthrough: [CONTRIBUTING.md](CONTRIBUTING.md).
 src/patchlint/
   rules/dockerfile/       one file per Dockerfile rule (DL001_root_user.py ...)
   rules/github_actions/   one file per workflow rule (GA001_unpinned_action.py ...)
+  rules/compose/          one file per docker-compose rule (DC001_privileged_container.py ...)
   parsers/                file-format parsers
   core/               rule registry, runner, data types
 tests/fixtures/<ID>/{bad,good}/   one file in each; every rule needs both

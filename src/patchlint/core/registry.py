@@ -11,7 +11,7 @@ from patchlint.core.model import SEVERITIES, CheckFn, Rule
 RULES: dict[str, Rule] = {}
 
 # The rule id prefix decides which files a rule runs on.
-PREFIX_FILETYPES = {"DL": "dockerfile", "GA": "workflow"}
+PREFIX_FILETYPES = {"DL": "dockerfile", "GA": "workflow", "DC": "compose"}
 
 
 def rule(

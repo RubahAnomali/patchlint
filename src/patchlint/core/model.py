@@ -9,7 +9,7 @@ from pathlib import Path
 from patchlint.parsers.github_actions import YMap
 
 SEVERITIES = ("low", "medium", "high")
-FILETYPES = ("dockerfile", "workflow")
+FILETYPES = ("dockerfile", "workflow", "compose")
 
 
 @dataclass(frozen=True)
@@ -35,13 +35,15 @@ class Finding:
 class Context:
     """What a rule's ``check`` function receives.
 
-    Dockerfile rules use ``instructions``; workflow rules use ``workflow``.
+    Dockerfile rules use ``instructions``; workflow rules use ``workflow``;
+    docker-compose rules use ``compose``.
     ``lines`` is the raw file text, one entry per line.
     """
 
     path: Path
     instructions: tuple[Instruction, ...]
     workflow: YMap | None
+    compose: YMap | None
     lines: tuple[str, ...]
     _rule_id: str
     _severity: str

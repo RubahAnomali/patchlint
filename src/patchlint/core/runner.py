@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 import sys
 from collections.abc import Iterable, Iterator
 from pathlib import Path
@@ -23,17 +24,23 @@ NOT_DOCKERFILE = {
     ".md", ".rst", ".txt", ".json", ".yml", ".yaml", ".toml", ".ini", ".cfg", ".lock",
 }
 
+# compose.yml, docker-compose.yaml, docker-compose.prod.yml, compose.override.yaml ...
+COMPOSE_NAME = re.compile(r"(docker-)?compose(\.[\w-]+)?\.ya?ml")
+
 
 def file_kind(path: Path, explicit: bool = False) -> str | None:
-    """Return "dockerfile", "workflow" or None.
+    """Return "dockerfile", "workflow", "compose" or None.
 
-    In a directory scan, YAML only counts inside `.github/workflows/`. A YAML file
-    named directly on the command line is always treated as a workflow.
+    Compose files are recognised by name anywhere. Other YAML only counts inside
+    `.github/workflows/` in a directory scan; a YAML file named directly on the
+    command line is treated as a workflow.
     """
     name = path.name.lower()
     variant = name.startswith("dockerfile.") and path.suffix.lower() not in NOT_DOCKERFILE
     if name == "dockerfile" or variant or name.endswith(".dockerfile"):
         return "dockerfile"
+    if COMPOSE_NAME.fullmatch(name):
+        return "compose"
     if path.suffix.lower() in (".yml", ".yaml"):
         parts = [p.lower() for p in path.parts]
         in_workflows = len(parts) >= 3 and parts[-3] == ".github" and parts[-2] == "workflows"
@@ -75,22 +82,27 @@ def scan(
         text = path.read_text(encoding="utf-8", errors="replace")
         instructions: tuple[Instruction, ...] = ()
         workflow: YMap | None = None
+        compose: YMap | None = None
         if kind == "dockerfile":
             instructions = dockerfile.parse(text)
         else:
             try:
-                workflow = github_actions.parse(text)
+                document = github_actions.parse(text)  # line-aware safe YAML
             except yaml.YAMLError as exc:
                 print(f"warning: skipping {path}: invalid YAML ({exc})", file=sys.stderr)
                 continue
-            if workflow is None:
+            if document is None:
                 continue
+            if kind == "workflow":
+                workflow = document
+            else:
+                compose = document
         lines = tuple(text.splitlines())
         for r in rules.values():
             if r.id not in selected or r.filetype != kind:
                 continue
             severity = config.severity.get(r.id, r.severity)
-            ctx = Context(path, instructions, workflow, lines, r.id, severity)
+            ctx = Context(path, instructions, workflow, compose, lines, r.id, severity)
             findings.extend(r.check(ctx))
     findings.sort(key=lambda f: (f.path, f.line, f.rule_id))
     return findings
