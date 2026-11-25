@@ -9,6 +9,7 @@ from dataclasses import asdict
 from pathlib import Path
 
 from patchlint import __version__
+from patchlint.config import Config, ConfigError, find_config, load_config
 from patchlint.core.registry import load_rules
 from patchlint.core.runner import scan
 from patchlint.sarif import to_sarif
@@ -25,6 +26,11 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--format", choices=["text", "json", "sarif"], default="text")
     s.add_argument("--rule", action="append", help="only run this rule id (repeatable)")
     s.add_argument("-o", "--output", type=Path, help="write results to this file, not stdout")
+    cfg = s.add_mutually_exclusive_group()
+    cfg.add_argument(
+        "--config", type=Path, help="config file (default: .patchlint.toml or pyproject.toml)"
+    )
+    cfg.add_argument("--no-config", action="store_true", help="ignore any config file")
     s.add_argument(
         "--exit-zero",
         action="store_true",
@@ -66,11 +72,27 @@ def main(argv: list[str] | None = None) -> int:
             print(f"created {path}")
         return 0
 
-    findings = scan(args.path, args.rule)
+    rules = load_rules()
+    if args.rule:
+        unknown = sorted({r.upper() for r in args.rule} - set(rules))
+        if unknown:
+            print(f"error: unknown rule id(s): {unknown}", file=sys.stderr)
+            return 2
+    config = Config()
+    if not args.no_config:
+        config_path = args.config or find_config(args.path)
+        if config_path is not None:
+            try:
+                config = load_config(config_path, rules)
+            except (ConfigError, OSError) as exc:
+                print(f"error: {exc}", file=sys.stderr)
+                return 2
+    only = [r.upper() for r in args.rule] if args.rule else None
+    findings = scan(args.path, only, config)
     if args.format == "json":
         report = json.dumps([asdict(f) for f in findings], indent=2)
     elif args.format == "sarif":
-        report = json.dumps(to_sarif(findings, load_rules()), indent=2)
+        report = json.dumps(to_sarif(findings, rules), indent=2)
     else:
         lines = [
             f"{f.path}:{f.line}: [{f.rule_id}/{f.severity}] {f.message}\n    fix: {f.fix}"

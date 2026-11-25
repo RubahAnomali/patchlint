@@ -31,6 +31,11 @@ def test_file_kind_detection() -> None:
     assert file_kind(Path("repo/config/app.yml")) is None
     assert file_kind(Path("repo/config/app.yml"), explicit=True) == "workflow"
     assert file_kind(Path("repo/Dockerfile")) == "dockerfile"
+    assert file_kind(Path("repo/Dockerfile.prod")) == "dockerfile"
+    assert file_kind(Path("repo/api.dockerfile")) == "dockerfile"
+    # Source files *about* Dockerfiles are not Dockerfiles.
+    assert file_kind(Path("src/parsers/dockerfile.py")) is None
+    assert file_kind(Path("docs/Dockerfile.md")) is None
 
 
 def test_ga002_points_at_the_injected_line(tmp_path: Path) -> None:

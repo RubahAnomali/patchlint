@@ -1,0 +1,3 @@
+# patchlint's own configuration, so `patchlint scan .` checks this repository.
+# The test fixtures contain deliberately insecure files, so skip them.
+exclude = ["tests/fixtures/*"]
