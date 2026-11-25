@@ -26,3 +26,5 @@ jobs:
       - run: ruff check .
       - run: mypy
       - run: pytest
+      - name: Scan this repo's own workflows with patchlint
+        run: patchlint scan .github

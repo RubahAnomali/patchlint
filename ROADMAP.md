@@ -2,7 +2,9 @@
 
 - [x] Rule API, registry, fixture-driven tests, `new-rule` scaffold
 - [ ] **v0.1** — 25 Dockerfile rules (CIS Docker Benchmark, Docker best practices), PyPI release
-- [ ] v0.2 — GitHub Actions workflow rules (pinned actions, `permissions`, `pull_request_target`)
+- [ ] v0.2 — GitHub Actions workflow rules
+  - [x] Workflow parser with line numbers, GA001 (unpinned actions), GA002 (script injection)
+  - [ ] More rules: missing `permissions`, `pull_request_target` checkout, unpinned `docker://` images, and more (see issues labelled `rule`)
 - [ ] v0.3 — docker-compose rules (`privileged`, exposed ports, secrets in env)
 - [ ] SARIF output for GitHub code scanning
 - [ ] Config file (`.patchlint.toml`) to disable rules or set severity

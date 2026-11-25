@@ -10,6 +10,9 @@ from patchlint.core.model import SEVERITIES, CheckFn, Rule
 
 RULES: dict[str, Rule] = {}
 
+# The rule id prefix decides which files a rule runs on.
+PREFIX_FILETYPES = {"DL": "dockerfile", "GA": "workflow"}
+
 
 def rule(
     id: str, title: str, severity: str, cwe: int | None = None
@@ -21,11 +24,16 @@ def rule(
     """
     if severity not in SEVERITIES:
         raise ValueError(f"severity must be one of {SEVERITIES}, got {severity!r}")
+    filetype = PREFIX_FILETYPES.get(id[:2])
+    if filetype is None:
+        raise ValueError(f"rule id {id!r} must start with one of {sorted(PREFIX_FILETYPES)}")
 
     def decorator(fn: CheckFn) -> CheckFn:
         if id in RULES:
             raise ValueError(f"duplicate rule id {id}")
-        RULES[id] = Rule(id=id, title=title, severity=severity, cwe=cwe, check=fn)
+        RULES[id] = Rule(
+            id=id, title=title, severity=severity, cwe=cwe, filetype=filetype, check=fn
+        )
         return fn
 
     return decorator

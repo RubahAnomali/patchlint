@@ -23,3 +23,11 @@ def test_new_rule_scaffold(tmp_path: Path, monkeypatch) -> None:  # type: ignore
     assert (tmp_path / "src/patchlint/rules/dockerfile/DL999_demo_rule.py").is_file()
     assert (tmp_path / "tests/fixtures/DL999/bad/Dockerfile").is_file()
     assert main(["new-rule", "bad-id", "x"]) == 2
+
+
+def test_new_workflow_rule_scaffold(tmp_path: Path, monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    monkeypatch.chdir(tmp_path)
+    assert main(["new-rule", "GA999", "demo_rule"]) == 0
+    rule_file = tmp_path / "src/patchlint/rules/github_actions/GA999_demo_rule.py"
+    assert "iter_steps" in rule_file.read_text(encoding="utf-8")
+    assert (tmp_path / "tests/fixtures/GA999/bad/workflow.yml").is_file()
