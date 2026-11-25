@@ -24,7 +24,9 @@ def check(ctx: Context) -> Iterable[Finding]:
     if ctx.compose is None:
         return
     for name, service in iter_services(ctx.compose):
-        if service.get("network_mode") == "host":
+        mode = service.get("network_mode")
+        # `service:x` and `container:x` share another container's namespace, not the host's.
+        if isinstance(mode, str) and mode.strip().lower() == "host":
             yield ctx.finding(
                 service.key_lines["network_mode"],
                 f"Service `{name}` uses `network_mode: host`, sharing the host network stack.",

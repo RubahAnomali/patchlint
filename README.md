@@ -4,7 +4,7 @@ A small, beginner-friendly security linter for config files. Every finding tells
 
 [![PyPI](https://img.shields.io/pypi/v/patchlint)](https://pypi.org/project/patchlint/) [![CI](https://github.com/RubahAnomali/patchlint/actions/workflows/ci.yml/badge.svg)](https://github.com/RubahAnomali/patchlint/actions/workflows/ci.yml)
 
-> Status: early (v0.2.0). Supports **Dockerfiles**, **GitHub Actions workflows** and **docker-compose files**. See the [roadmap](ROADMAP.md).
+> Status: early (v0.3.0), 13 rules. Supports **Dockerfiles**, **GitHub Actions workflows** and **docker-compose files**. See the [roadmap](ROADMAP.md).
 
 | Files | Found by a directory scan | Rule prefix |
 |---|---|---|
@@ -100,9 +100,9 @@ Each rule is one small file. Pick an issue labelled
 
 ```bash
 pip install -e ".[dev]"
-patchlint new-rule DL003 add_instead_of_copy   # Dockerfile rule + fixtures
-patchlint new-rule GA003 missing_permissions   # GitHub Actions rule + fixtures
-patchlint new-rule DC003 host_network          # docker-compose rule + fixtures
+patchlint new-rule DL003 add_instead_of_copy      # Dockerfile rule + fixtures
+patchlint new-rule GA005 unpinned_docker_action   # GitHub Actions rule + fixtures
+patchlint new-rule DC005 dangerous_capabilities   # docker-compose rule + fixtures
 # edit the rule, edit the two fixtures, then:
 pytest
 ```

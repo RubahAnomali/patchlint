@@ -20,8 +20,8 @@ The rule id prefix decides which files the rule checks: `DL` for Dockerfiles, `G
 
 1. Run the scaffold for the id in your issue:
    - `patchlint new-rule DL003 add_instead_of_copy` creates `src/patchlint/rules/dockerfile/DL003_add_instead_of_copy.py` plus `tests/fixtures/DL003/bad/Dockerfile` and `good/Dockerfile`.
-   - `patchlint new-rule GA003 missing_permissions` creates `src/patchlint/rules/github_actions/GA003_missing_permissions.py` plus `tests/fixtures/GA003/bad/workflow.yml` and `good/workflow.yml`.
-   - `patchlint new-rule DC003 host_network` creates `src/patchlint/rules/compose/DC003_host_network.py` plus `tests/fixtures/DC003/bad/compose.yml` and `good/compose.yml`.
+   - `patchlint new-rule GA005 unpinned_docker_action` creates `src/patchlint/rules/github_actions/GA005_unpinned_docker_action.py` plus `tests/fixtures/GA005/bad/workflow.yml` and `good/workflow.yml`.
+   - `patchlint new-rule DC005 dangerous_capabilities` creates `src/patchlint/rules/compose/DC005_dangerous_capabilities.py` plus `tests/fixtures/DC005/bad/compose.yml` and `good/compose.yml`.
    - The `bad` file **must** trigger the rule; the `good` file **must not**.
 2. Fill in the `@rule(...)` metadata (severity: `low`/`medium`/`high`; CWE if one applies).
 3. Implement `check(ctx)` and `yield ctx.finding(line, message, fix)` for each problem:

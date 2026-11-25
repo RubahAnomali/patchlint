@@ -4,6 +4,16 @@ All notable changes are listed here. The format follows [Keep a Changelog](https
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-26
+
+### Added
+- docker-compose rules:
+  - `DC003` service uses the host network (thanks @techkayacodes; case-insensitive matching from @UNMFOREVER)
+  - `DC004` credential written literally into a service's `environment` (thanks @UNMFOREVER)
+  - `DC008` `security_opt` turns off seccomp or AppArmor (thanks @UNMFOREVER)
+- Dockerfile rule `DL016` image declares no `HEALTHCHECK` (thanks @ljw1558)
+- `python -m patchlint` works the same as the `patchlint` command.
+
 ## [0.2.0] - 2026-11-25
 
 ### Added

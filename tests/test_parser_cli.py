@@ -33,3 +33,13 @@ def test_new_workflow_rule_scaffold(tmp_path: Path, monkeypatch) -> None:  # typ
     rule_file = tmp_path / "src/patchlint/rules/github_actions/GA999_demo_rule.py"
     assert "iter_steps" in rule_file.read_text(encoding="utf-8")
     assert (tmp_path / "tests/fixtures/GA999/bad/workflow.yml").is_file()
+
+
+def test_python_dash_m_runs_the_cli() -> None:
+    import subprocess
+    import sys
+
+    result = subprocess.run(
+        [sys.executable, "-m", "patchlint", "--version"], capture_output=True, text=True
+    )
+    assert result.returncode == 0 and result.stdout.strip()
