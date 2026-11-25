@@ -1,0 +1,7 @@
+# This file MUST trigger GA008.
+on: push
+permissions: read-all
+jobs:
+  deploy:
+    uses: octo-org/shared/.github/workflows/deploy.yml@3d3c42e5aac5ba805825da76410c181273ba90b1
+    secrets: inherit
