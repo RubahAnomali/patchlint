@@ -35,7 +35,22 @@ Exit code is `1` when findings exist, so it works in CI.
 | `--format sarif` | [SARIF 2.1.0](https://docs.oasis-open.org/sarif/sarif/v2.1.0/sarif-v2.1.0.html), for GitHub code scanning and IDEs |
 | `-o FILE` | Write the report to a file instead of the terminal |
 | `--exit-zero` | Exit `0` even with findings (useful before uploading a report) |
-| `--rule ID` | Only run this rule (repeatable) |
+| `--rule ID` | Only run this rule (repeatable); overrides `disable` in the config |
+| `--config FILE` / `--no-config` | Use a specific config file, or ignore config files |
+
+## Configuration
+
+Put a `.patchlint.toml` in the folder you scan (or a `[tool.patchlint]` table in `pyproject.toml`):
+
+```toml
+disable = ["DL002"]              # turn rules off
+exclude = ["tests/fixtures/*"]   # skip paths (globs relative to the scanned folder; * also matches /)
+
+[severity]                       # change a rule's severity: low, medium or high
+GA001 = "high"
+```
+
+Unknown keys, rule ids or severities stop the scan with an error that says what to fix, so typos never silently disable checks.
 
 ## Show findings in GitHub's Security tab
 

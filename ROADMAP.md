@@ -7,7 +7,7 @@
   - [ ] More rules: missing `permissions`, `pull_request_target` checkout, unpinned `docker://` images, and more (see issues labelled `rule`)
 - [ ] v0.3 — docker-compose rules (`privileged`, exposed ports, secrets in env)
 - [x] SARIF output for GitHub code scanning (`--format sarif`, `-o`, `--exit-zero`)
-- [ ] Config file (`.patchlint.toml`) to disable rules or set severity
+- [x] Config file (`.patchlint.toml` or `[tool.patchlint]`) to disable rules, exclude paths and set severity
 - [ ] Third-party rule packs via entry points
 
 Ideas for rules live in issues labelled `rule`. Open a "Rule proposal" issue to suggest one.
