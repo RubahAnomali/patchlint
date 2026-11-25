@@ -4,7 +4,7 @@ A small, beginner-friendly security linter for config files. Every finding tells
 
 [![PyPI](https://img.shields.io/pypi/v/patchlint)](https://pypi.org/project/patchlint/) [![CI](https://github.com/RubahAnomali/patchlint/actions/workflows/ci.yml/badge.svg)](https://github.com/RubahAnomali/patchlint/actions/workflows/ci.yml)
 
-> Status: early (v0.1.0). Supports **Dockerfiles**, **GitHub Actions workflows** and **docker-compose files**. See the [roadmap](ROADMAP.md).
+> Status: early (v0.2.0). Supports **Dockerfiles**, **GitHub Actions workflows** and **docker-compose files**. See the [roadmap](ROADMAP.md).
 
 | Files | Found by a directory scan | Rule prefix |
 |---|---|---|
@@ -88,6 +88,10 @@ jobs:
 ```
 
 Code scanning is free for public repositories. The actions are pinned to commit SHAs, which is what rule GA001 asks for.
+
+## Rule plugins
+
+Company- or project-specific rules can live in their own package and are loaded automatically through the `patchlint.rules` entry point. See [docs/plugins.md](docs/plugins.md).
 
 ## Contribute in 30 minutes
 

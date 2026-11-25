@@ -11,6 +11,6 @@
   - [ ] More rules: host networking, secrets in `environment`, dangerous capabilities, unpinned images, and more (see issues labelled `rule`)
 - [x] SARIF output for GitHub code scanning (`--format sarif`, `-o`, `--exit-zero`)
 - [x] Config file (`.patchlint.toml` or `[tool.patchlint]`) to disable rules, exclude paths and set severity
-- [ ] Third-party rule packs via entry points
+- [x] Third-party rule packs via the `patchlint.rules` entry point ([docs/plugins.md](docs/plugins.md))
 
 Ideas for rules live in issues labelled `rule`. Open a "Rule proposal" issue to suggest one.
