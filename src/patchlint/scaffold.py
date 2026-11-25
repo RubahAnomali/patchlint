@@ -44,6 +44,19 @@ def check(ctx: Context) -> Iterable[Finding]:
             yield ctx.finding(step.line, "What is wrong.", "How to fix it.")
 '''
 
+COMPOSE_BODY = '''from patchlint.parsers.compose import iter_services
+
+
+@rule(id="{id}", title="{title}", severity="medium", cwe=None)
+def check(ctx: Context) -> Iterable[Finding]:
+{doc}
+    if ctx.compose is None:
+        return
+    for _name, service in iter_services(ctx.compose):
+        if False:  # TODO: replace with your real condition
+            yield ctx.finding(service.line, "What is wrong.", "How to fix it.")
+'''
+
 
 @dataclass(frozen=True)
 class Kind:
@@ -62,12 +75,20 @@ KINDS = {
         "    steps:\n      - run: echo hello\n",
         WORKFLOW_BODY,
     ),
+    "DC": Kind(
+        "compose",
+        "compose.yml",
+        "services:\n  web:\n    image: nginx:1.27\n",
+        COMPOSE_BODY,
+    ),
 }
 
 
 def new_rule(rule_id: str, slug: str, repo_root: Path) -> list[Path]:
-    if not re.fullmatch(r"(DL|GA)\d{3}", rule_id):
-        raise ValueError("rule id must look like DL003 (Dockerfile) or GA003 (GitHub Actions)")
+    if not re.fullmatch(r"(DL|GA|DC)\d{3}", rule_id):
+        raise ValueError(
+            "rule id must look like DL003 (Dockerfile), GA003 (GitHub Actions) or DC003 (compose)"
+        )
     if not re.fullmatch(r"[a-z0-9_]+", slug):
         raise ValueError("name must be lower_snake_case, e.g. add_instead_of_copy")
     kind = KINDS[rule_id[:2]]

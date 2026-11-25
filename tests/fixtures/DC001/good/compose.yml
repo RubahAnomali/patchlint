@@ -1,0 +1,8 @@
+services:
+  monitor:
+    image: example/monitor:2.1
+    privileged: false
+    cap_add:
+      - NET_ADMIN
+  web:
+    image: nginx:1.27

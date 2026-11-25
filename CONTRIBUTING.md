@@ -16,20 +16,23 @@ pytest && ruff check . && mypy
 
 ## Add a rule (the most common contribution)
 
-The rule id prefix decides which files the rule checks: `DL` for Dockerfiles, `GA` for GitHub Actions workflows.
+The rule id prefix decides which files the rule checks: `DL` for Dockerfiles, `GA` for GitHub Actions workflows, `DC` for docker-compose files.
 
 1. Run the scaffold for the id in your issue:
    - `patchlint new-rule DL003 add_instead_of_copy` creates `src/patchlint/rules/dockerfile/DL003_add_instead_of_copy.py` plus `tests/fixtures/DL003/bad/Dockerfile` and `good/Dockerfile`.
    - `patchlint new-rule GA003 missing_permissions` creates `src/patchlint/rules/github_actions/GA003_missing_permissions.py` plus `tests/fixtures/GA003/bad/workflow.yml` and `good/workflow.yml`.
+   - `patchlint new-rule DC003 host_network` creates `src/patchlint/rules/compose/DC003_host_network.py` plus `tests/fixtures/DC003/bad/compose.yml` and `good/compose.yml`.
    - The `bad` file **must** trigger the rule; the `good` file **must not**.
 2. Fill in the `@rule(...)` metadata (severity: `low`/`medium`/`high`; CWE if one applies).
 3. Implement `check(ctx)` and `yield ctx.finding(line, message, fix)` for each problem:
    - Dockerfile rules loop over `ctx.instructions` (each has `.line`, `.cmd`, `.args`).
-   - Workflow rules use `ctx.workflow` with the helpers `iter_jobs()` and `iter_steps()`. Every mapping has `.line` and `.key_lines["some_key"]`, so findings point at the right line.
+   - Workflow rules use `ctx.workflow` with the helpers `iter_jobs()` and `iter_steps()`.
+   - Compose rules use `ctx.compose` with `iter_services()` and `volume_sources()` from `patchlint.parsers.compose`.
+   - In workflows and compose files, every mapping has `.line` and `.key_lines["some_key"]`, so findings point at the right line.
 4. Write the docstring with a "Why it matters" and a "Fix" section. It is the rule's documentation (`patchlint explain DL003`).
 5. Run `pytest`. Tests are discovered from fixtures, so you do not write test code for a normal rule.
 
-Model rules: `DL001_root_user.py` (Dockerfile) and `GA001_unpinned_action.py` (workflow).
+Model rules: `DL001_root_user.py` (Dockerfile), `GA001_unpinned_action.py` (workflow) and `DC001_privileged_container.py` (compose).
 
 ### Rule quality bar
 

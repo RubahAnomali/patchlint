@@ -4,6 +4,12 @@ All notable changes are listed here. The format follows [Keep a Changelog](https
 
 ## [Unreleased]
 
+### Added
+- **docker-compose support:** `compose.yml`, `docker-compose.yml` and variants like `docker-compose.prod.yml` are scanned anywhere in the tree.
+  - `DC001` service runs in privileged mode
+  - `DC002` Docker socket mounted into a service
+- `patchlint new-rule DC0xx` scaffold and `iter_services()` / `volume_sources()` helpers for compose rules.
+
 ## [0.1.0] - 2026-11-25
 
 First public release.

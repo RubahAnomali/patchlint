@@ -1,0 +1,4 @@
+services:
+  monitor:
+    image: example/monitor:2.1
+    privileged: true

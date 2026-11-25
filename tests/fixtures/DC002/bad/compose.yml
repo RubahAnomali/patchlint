@@ -1,0 +1,12 @@
+services:
+  dashboard:
+    image: example/dashboard:1.0
+    volumes:
+      - ./config:/config:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+  agent:
+    image: example/agent:1.0
+    volumes:
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
