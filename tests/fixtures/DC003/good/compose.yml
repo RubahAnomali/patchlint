@@ -1,0 +1,8 @@
+services:
+  agent:
+    image: example/agent:1.4
+    ports:
+      - "127.0.0.1:8080:80"
+  sidecar:
+    image: example/sidecar:1.4
+    network_mode: "service:agent"
