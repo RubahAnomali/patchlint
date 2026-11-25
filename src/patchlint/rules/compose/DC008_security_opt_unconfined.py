@@ -9,11 +9,11 @@ from patchlint.parsers.github_actions import YMap
 
 
 def _options(service: YMap) -> list[str]:
-    """`security_opt` 的三种写法都摊平成字符串列表。
+    """Flatten the shapes `security_opt` can take into a list of strings.
 
-    compose 允许 `security_opt: ["seccomp:unconfined"]`、
-    `security_opt: {seccomp: unconfined}`（少数实现支持字典）、
-    以及单条字符串 `security_opt: seccomp:unconfined`。
+    Compose accepts a list (`security_opt: ["seccomp:unconfined"]`), a mapping
+    (`security_opt: {seccomp: unconfined}`, which some implementations support)
+    and a single string (`security_opt: seccomp:unconfined`).
     """
     raw = service.get("security_opt")
     if raw is None:
@@ -33,9 +33,9 @@ def _options(service: YMap) -> list[str]:
     return []
 
 
-@rule(id="DC008", title="Security opt unconfined", severity="medium", cwe=693)
+@rule(id="DC008", title="Service turns off seccomp or AppArmor", severity="medium", cwe=693)
 def check(ctx: Context) -> Iterable[Finding]:
-    """A compose service disables its sandbox with `security_opt: …:unconfined`.
+    """A compose service disables its sandbox with `security_opt: ...:unconfined`.
 
     Why it matters: Docker gives every container a seccomp profile (which system
     calls may run) and, on hosts that support it, an AppArmor profile (what the

@@ -7,7 +7,6 @@ from patchlint.core.registry import rule
 from patchlint.parsers.compose import iter_services
 from patchlint.parsers.github_actions import YList, YMap
 
-SECRET_PARTS = ("password", "passwd", "secret", "token", "api_key", "apikey", "apisecret")
 NOT_SECRET = ("passwordless", "token_url", "token_endpoint", "api_key_url")
 
 

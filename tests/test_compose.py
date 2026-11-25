@@ -61,3 +61,40 @@ def test_new_compose_rule_scaffold(tmp_path: Path, monkeypatch) -> None:  # type
     rule_file = tmp_path / "src/patchlint/rules/compose/DC999_demo_rule.py"
     assert "iter_services" in rule_file.read_text(encoding="utf-8")
     assert (tmp_path / "tests/fixtures/DC999/good/compose.yml").is_file()
+
+
+def test_dc003_matches_host_only(tmp_path: Path) -> None:
+    compose = tmp_path / "compose.yml"
+    compose.write_text(
+        "services:\n"
+        "  a:\n    image: a:1\n    network_mode: Host\n"
+        "  b:\n    image: b:1\n    network_mode: \"service:a\"\n"
+        "  c:\n    image: c:1\n    network_mode: bridge\n",
+        encoding="utf-8",
+    )
+    assert [f.line for f in scan(compose, only=["DC003"])] == [4]
+
+
+def test_dc004_reports_list_and_map_literals_only(tmp_path: Path) -> None:
+    compose = tmp_path / "compose.yml"
+    compose.write_text(
+        "services:\n"
+        "  a:\n    image: a:1\n    environment:\n"
+        "      - DB_PASSWORD=hunter2\n      - API_KEY=${API_KEY}\n"
+        "  b:\n    image: b:1\n    environment:\n"
+        "      SECRET_KEY: abc\n      TOKENIZER_PATH: /opt/tok\n",
+        encoding="utf-8",
+    )
+    assert [f.line for f in scan(compose, only=["DC004"])] == [5, 10]
+
+
+def test_dc008_handles_string_and_mapping_shapes(tmp_path: Path) -> None:
+    compose = tmp_path / "compose.yml"
+    compose.write_text(
+        "services:\n"
+        "  a:\n    image: a:1\n    security_opt: seccomp:unconfined\n"
+        "  b:\n    image: b:1\n    security_opt:\n      apparmor: unconfined\n"
+        "  c:\n    image: c:1\n    security_opt:\n      - no-new-privileges:true\n",
+        encoding="utf-8",
+    )
+    assert [f.line for f in scan(compose, only=["DC008"])] == [4, 7]
