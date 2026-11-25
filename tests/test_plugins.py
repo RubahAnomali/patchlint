@@ -60,7 +60,10 @@ def test_plugin_rules_load_and_run(plugins: Callable[..., None], tmp_path: Path)
     assert rules["DL-acme-1"].origin == "acme-patchlint-rules"
     assert rules["DL001"].origin == "patchlint"
     dockerfile = tmp_path / "Dockerfile"
-    dockerfile.write_text("FROM python:3.12-slim\nUSER app\nEXPOSE 8080\n", encoding="utf-8")
+    dockerfile.write_text(
+        "FROM python:3.12-slim\nUSER app\nEXPOSE 8080\nHEALTHCHECK CMD true\n",
+        encoding="utf-8",
+    )
     assert [f.rule_id for f in scan(dockerfile)] == ["DL-acme-1"]
 
 

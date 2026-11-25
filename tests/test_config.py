@@ -15,7 +15,9 @@ def make_repo(tmp_path: Path, config: str | None = None, name: str = ".patchlint
     wf = tmp_path / ".github" / "workflows"
     wf.mkdir(parents=True)
     (wf / "ci.yml").write_text(UNPINNED, encoding="utf-8")
-    (tmp_path / "Dockerfile").write_text("FROM python:latest\nUSER app\n", encoding="utf-8")
+    (tmp_path / "Dockerfile").write_text(
+        "FROM python:latest\nUSER app\nHEALTHCHECK CMD true\n", encoding="utf-8"
+    )
     if config is not None:
         (tmp_path / name).write_text(config, encoding="utf-8")
     return tmp_path
