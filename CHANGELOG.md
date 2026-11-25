@@ -16,6 +16,7 @@ First public release.
   - `GA001` action not pinned to a commit SHA
   - `GA002` untrusted input in a `run:` script (script injection)
   - `GA003` no top-level `permissions:` block (thanks @ljw1558)
+  - `GA004` `pull_request_target` workflow checks out the pull request's code (thanks @ljw1558)
   - `GA008` `secrets: inherit` to a reusable workflow in another repository (thanks @SVR1339)
 - Output as text, JSON or SARIF 2.1.0 (`--format sarif`) for GitHub code scanning; `-o FILE` and `--exit-zero`.
 - Configuration in `.patchlint.toml` or `[tool.patchlint]`: `disable`, `exclude` and per-rule `[severity]`, with strict validation.
