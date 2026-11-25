@@ -1,0 +1,10 @@
+# This file must NOT trigger the rule: it checks out the base branch, not the PR.
+on: pull_request_target
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+      - run: echo hello
