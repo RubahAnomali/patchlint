@@ -1,0 +1,8 @@
+services:
+  proxy:
+    image: nginx:1.27
+    network_mode: bridge
+    ports:
+      - "127.0.0.1:8080:80"
+  worker:
+    image: example/worker:1.0
