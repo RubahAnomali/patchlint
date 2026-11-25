@@ -1,0 +1,7 @@
+services:
+  api:
+    image: myapp/api:1.4
+    environment:
+      DB_PASSWORD: hunter2
+      STRIPE_TOKEN: sk_live_fake0000
+      LOG_LEVEL: info

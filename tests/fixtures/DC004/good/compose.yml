@@ -1,0 +1,10 @@
+services:
+  api:
+    image: myapp/api:1.4
+    environment:
+      DB_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD}
+      STRIPE_TOKEN:
+      API_KEY: ${API_KEY}
+      TOKENIZER_PATH: /opt/tok
+      PASSWORD_HASH_ROUNDS: '12'
+      LOG_LEVEL: info
