@@ -1,0 +1,31 @@
+name: Rule proposal
+description: Suggest a new security rule
+labels: ["rule"]
+body:
+  - type: input
+    id: title
+    attributes:
+      label: What should the rule flag?
+      placeholder: "`ADD` used instead of `COPY`"
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why is it a security risk?
+      description: Link a source (CIS Benchmark, OWASP, vendor docs) if you can.
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Bad and good examples
+      render: dockerfile
+    validations:
+      required: true
+  - type: checkboxes
+    id: willing
+    attributes:
+      label: Want to implement it?
+      options:
+        - label: I'd like to implement this myself

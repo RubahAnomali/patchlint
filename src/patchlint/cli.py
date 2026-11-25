@@ -1,0 +1,73 @@
+"""Command-line interface."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from dataclasses import asdict
+from pathlib import Path
+
+from patchlint import __version__
+from patchlint.core.registry import load_rules
+from patchlint.core.runner import scan
+from patchlint.scaffold import new_rule
+
+
+def main(argv: list[str] | None = None) -> int:
+    p = argparse.ArgumentParser(prog="patchlint", description=__doc__)
+    p.add_argument("--version", action="version", version=__version__)
+    sub = p.add_subparsers(dest="cmd", required=True)
+
+    s = sub.add_parser("scan", help="scan a file or directory")
+    s.add_argument("path", type=Path, nargs="?", default=Path("."))
+    s.add_argument("--format", choices=["text", "json"], default="text")
+    s.add_argument("--rule", action="append", help="only run this rule id (repeatable)")
+
+    sub.add_parser("list-rules", help="list all rules")
+
+    e = sub.add_parser("explain", help="show why a rule exists and how to fix it")
+    e.add_argument("rule_id")
+
+    n = sub.add_parser("new-rule", help="scaffold a new rule and its fixtures")
+    n.add_argument("rule_id", help="e.g. DL003")
+    n.add_argument("name", help="lower_snake_case, e.g. add_instead_of_copy")
+
+    args = p.parse_args(argv)
+
+    if args.cmd == "list-rules":
+        for r in load_rules().values():
+            print(f"{r.id}  {r.severity:<6}  {r.title}")
+        return 0
+
+    if args.cmd == "explain":
+        found = load_rules().get(args.rule_id.upper())
+        if found is None:
+            print(f"unknown rule {args.rule_id}", file=sys.stderr)
+            return 2
+        cwe = f" (CWE-{found.cwe})" if found.cwe else ""
+        print(f"{found.id}: {found.title}{cwe}\nSeverity: {found.severity}\n\n{found.doc}")
+        return 0
+
+    if args.cmd == "new-rule":
+        try:
+            created = new_rule(args.rule_id.upper(), args.name, Path.cwd())
+        except (ValueError, FileExistsError) as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return 2
+        for path in created:
+            print(f"created {path}")
+        return 0
+
+    findings = scan(args.path, args.rule)
+    if args.format == "json":
+        print(json.dumps([asdict(f) for f in findings], indent=2))
+    else:
+        for f in findings:
+            print(f"{f.path}:{f.line}: [{f.rule_id}/{f.severity}] {f.message}\n    fix: {f.fix}")
+        print(f"\n{len(findings)} finding(s)")
+    return 1 if findings else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
