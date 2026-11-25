@@ -27,7 +27,49 @@ Dockerfile:1: [DL001/high] Final stage runs as root (no non-root USER set).
     fix: Move it to `env:` and use the variable, quoted, in the script.
 ```
 
-Exit code is `1` when findings exist, so it works in CI. Use `--format json` for machine output.
+Exit code is `1` when findings exist, so it works in CI.
+
+| Option | What it does |
+|---|---|
+| `--format json` | Machine-readable list of findings |
+| `--format sarif` | [SARIF 2.1.0](https://docs.oasis-open.org/sarif/sarif/v2.1.0/sarif-v2.1.0.html), for GitHub code scanning and IDEs |
+| `-o FILE` | Write the report to a file instead of the terminal |
+| `--exit-zero` | Exit `0` even with findings (useful before uploading a report) |
+| `--rule ID` | Only run this rule (repeatable) |
+
+## Show findings in GitHub's Security tab
+
+Upload SARIF to GitHub code scanning, and findings appear as alerts on the right lines, including in pull requests. Add `.github/workflows/patchlint.yml`:
+
+```yaml
+name: patchlint
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write   # needed to upload SARIF
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - run: pip install patchlint
+      - run: patchlint scan . --format sarif -o patchlint.sarif --exit-zero
+      - uses: github/codeql-action/upload-sarif@915412ff23e8b7659517e607487dbeae018f2934 # v4.39.5
+        with:
+          sarif_file: patchlint.sarif
+```
+
+Code scanning is free for public repositories. The actions are pinned to commit SHAs, which is what rule GA001 asks for.
 
 ## Contribute in 30 minutes
 
