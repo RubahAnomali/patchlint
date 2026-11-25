@@ -1,0 +1,7 @@
+# This file MUST trigger the rule: no top-level `permissions:` block.
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo hello
