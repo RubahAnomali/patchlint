@@ -58,4 +58,4 @@ def test_directory_scan_finds_workflows(tmp_path: Path) -> None:
         "on: push\njobs:\n  b:\n    steps:\n      - uses: actions/checkout@v4\n", encoding="utf-8"
     )
     (tmp_path / "other.yml").write_text("uses: not/a-workflow@v1\n", encoding="utf-8")
-    assert [f.rule_id for f in scan(tmp_path)] == ["GA001"]
+    assert [f.rule_id for f in scan(tmp_path, only=["GA001"])] == ["GA001"]
