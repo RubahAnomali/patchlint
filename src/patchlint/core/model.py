@@ -6,7 +6,10 @@ from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from pathlib import Path
 
+from patchlint.parsers.github_actions import YMap
+
 SEVERITIES = ("low", "medium", "high")
+FILETYPES = ("dockerfile", "workflow")
 
 
 @dataclass(frozen=True)
@@ -30,15 +33,28 @@ class Finding:
 
 @dataclass(frozen=True)
 class Context:
-    """What a rule's ``check`` function receives."""
+    """What a rule's ``check`` function receives.
+
+    Dockerfile rules use ``instructions``; workflow rules use ``workflow``.
+    ``lines`` is the raw file text, one entry per line.
+    """
 
     path: Path
     instructions: tuple[Instruction, ...]
+    workflow: YMap | None
+    lines: tuple[str, ...]
     _rule_id: str
     _severity: str
 
     def finding(self, line: int, message: str, fix: str) -> Finding:
         return Finding(self._rule_id, self._severity, message, str(self.path), line, fix)
+
+    def line_of(self, text: str, start: int) -> int:
+        """First line at or after ``start`` that contains ``text`` (falls back to ``start``)."""
+        for index in range(max(start - 1, 0), len(self.lines)):
+            if text in self.lines[index]:
+                return index + 1
+        return start
 
 
 CheckFn = Callable[[Context], Iterable[Finding]]
@@ -50,6 +66,7 @@ class Rule:
     title: str
     severity: str
     cwe: int | None
+    filetype: str
     check: CheckFn
 
     @property

@@ -30,6 +30,18 @@ Issue body template:
 - DL021 `FROM` with `--platform` pinned to emulate, low (discuss first)
 - DL022 `USER` set to numeric 0 after non-root (regression of DL001)
 
+## GitHub Actions rules (GA003 onward)
+
+Model rules: `GA001_unpinned_action.py`, `GA002_script_injection.py`. Scaffold with `patchlint new-rule GA0xx <name>`.
+
+- GA003 No top-level `permissions:` block (token defaults may be read-write)
+- GA004 `pull_request_target` workflow checks out the PR's head code (`ref: ${{ github.event.pull_request.head.sha }}` or `.head.ref`)
+- GA005 `docker://` action image not pinned by `@sha256:` digest
+- GA006 `actions/checkout` without `persist-credentials: false`
+- GA007 `permissions: write-all` at workflow or job level
+- GA008 `secrets: inherit` passed to a reusable workflow from another repo
+- GA009 Self-hosted runner used on `pull_request` from forks (low, research first)
+
 ## Features and tooling (`help wanted`)
 
 - `--severity` filter flag (`--min-severity high`)

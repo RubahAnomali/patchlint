@@ -16,22 +16,26 @@ pytest && ruff check . && mypy
 
 ## Add a rule (the most common contribution)
 
-1. `patchlint new-rule DL003 add_instead_of_copy` creates:
-   - `src/patchlint/rules/dockerfile/DL003_add_instead_of_copy.py`
-   - `tests/fixtures/DL003/bad/Dockerfile` (**must** trigger the rule)
-   - `tests/fixtures/DL003/good/Dockerfile` (**must not** trigger it)
+The rule id prefix decides which files the rule checks: `DL` for Dockerfiles, `GA` for GitHub Actions workflows.
+
+1. Run the scaffold for the id in your issue:
+   - `patchlint new-rule DL003 add_instead_of_copy` creates `src/patchlint/rules/dockerfile/DL003_add_instead_of_copy.py` plus `tests/fixtures/DL003/bad/Dockerfile` and `good/Dockerfile`.
+   - `patchlint new-rule GA003 missing_permissions` creates `src/patchlint/rules/github_actions/GA003_missing_permissions.py` plus `tests/fixtures/GA003/bad/workflow.yml` and `good/workflow.yml`.
+   - The `bad` file **must** trigger the rule; the `good` file **must not**.
 2. Fill in the `@rule(...)` metadata (severity: `low`/`medium`/`high`; CWE if one applies).
-3. Implement `check(ctx)`. Use `ctx.instructions` and `yield ctx.finding(line, message, fix)`.
+3. Implement `check(ctx)` and `yield ctx.finding(line, message, fix)` for each problem:
+   - Dockerfile rules loop over `ctx.instructions` (each has `.line`, `.cmd`, `.args`).
+   - Workflow rules use `ctx.workflow` with the helpers `iter_jobs()` and `iter_steps()`. Every mapping has `.line` and `.key_lines["some_key"]`, so findings point at the right line.
 4. Write the docstring with a "Why it matters" and a "Fix" section. It is the rule's documentation (`patchlint explain DL003`).
 5. Run `pytest`. Tests are discovered from fixtures, so you do not write test code for a normal rule.
 
-Look at `DL001_root_user.py` for a model rule.
+Model rules: `DL001_root_user.py` (Dockerfile) and `GA001_unpinned_action.py` (workflow).
 
 ### Rule quality bar
 
 - Low false positives beat catching everything. If unsure, don't flag.
 - Message says what is wrong; `fix` says exactly what to do.
-- Cite the source (CIS Docker Benchmark, OWASP, Docker docs) in the docstring where relevant.
+- Cite the source (CIS Docker Benchmark, OWASP, GitHub's security hardening guide) in the docstring where relevant.
 
 ## Pull requests
 
