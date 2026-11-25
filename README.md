@@ -2,7 +2,9 @@
 
 A small, beginner-friendly security linter for config files. Every finding tells you **why** it matters and **how to fix it**.
 
-> Status: early (v0.1 in progress). Supports **Dockerfiles** and **GitHub Actions workflows**; docker-compose is on the [roadmap](ROADMAP.md).
+[![PyPI](https://img.shields.io/pypi/v/patchlint)](https://pypi.org/project/patchlint/) [![CI](https://github.com/RubahAnomali/patchlint/actions/workflows/ci.yml/badge.svg)](https://github.com/RubahAnomali/patchlint/actions/workflows/ci.yml)
+
+> Status: early (v0.1.0). Supports **Dockerfiles** and **GitHub Actions workflows**; docker-compose is on the [roadmap](ROADMAP.md).
 
 | Files | Found by a directory scan | Rule prefix |
 |---|---|---|
@@ -12,7 +14,7 @@ A small, beginner-friendly security linter for config files. Every finding tells
 ## Install and try
 
 ```bash
-pip install patchlint        # once published; for now: pip install -e ".[dev]"
+pip install patchlint
 patchlint scan .
 patchlint list-rules
 patchlint explain DL001
