@@ -11,6 +11,7 @@ from pathlib import Path
 from patchlint import __version__
 from patchlint.core.registry import load_rules
 from patchlint.core.runner import scan
+from patchlint.sarif import to_sarif
 from patchlint.scaffold import new_rule
 
 
@@ -21,8 +22,14 @@ def main(argv: list[str] | None = None) -> int:
 
     s = sub.add_parser("scan", help="scan a file or directory")
     s.add_argument("path", type=Path, nargs="?", default=Path("."))
-    s.add_argument("--format", choices=["text", "json"], default="text")
+    s.add_argument("--format", choices=["text", "json", "sarif"], default="text")
     s.add_argument("--rule", action="append", help="only run this rule id (repeatable)")
+    s.add_argument("-o", "--output", type=Path, help="write results to this file, not stdout")
+    s.add_argument(
+        "--exit-zero",
+        action="store_true",
+        help="exit 0 even when there are findings (e.g. before uploading SARIF)",
+    )
 
     sub.add_parser("list-rules", help="list all rules")
 
@@ -61,12 +68,21 @@ def main(argv: list[str] | None = None) -> int:
 
     findings = scan(args.path, args.rule)
     if args.format == "json":
-        print(json.dumps([asdict(f) for f in findings], indent=2))
+        report = json.dumps([asdict(f) for f in findings], indent=2)
+    elif args.format == "sarif":
+        report = json.dumps(to_sarif(findings, load_rules()), indent=2)
     else:
-        for f in findings:
-            print(f"{f.path}:{f.line}: [{f.rule_id}/{f.severity}] {f.message}\n    fix: {f.fix}")
-        print(f"\n{len(findings)} finding(s)")
-    return 1 if findings else 0
+        lines = [
+            f"{f.path}:{f.line}: [{f.rule_id}/{f.severity}] {f.message}\n    fix: {f.fix}"
+            for f in findings
+        ]
+        report = "\n".join([*lines, f"\n{len(findings)} finding(s)"])
+    if args.output:
+        args.output.write_text(report + "\n", encoding="utf-8")
+        print(f"wrote {len(findings)} finding(s) to {args.output}", file=sys.stderr)
+    else:
+        print(report)
+    return 1 if findings and not args.exit_zero else 0
 
 
 if __name__ == "__main__":

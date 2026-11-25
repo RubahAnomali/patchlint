@@ -6,7 +6,7 @@
   - [x] Workflow parser with line numbers, GA001 (unpinned actions), GA002 (script injection)
   - [ ] More rules: missing `permissions`, `pull_request_target` checkout, unpinned `docker://` images, and more (see issues labelled `rule`)
 - [ ] v0.3 — docker-compose rules (`privileged`, exposed ports, secrets in env)
-- [ ] SARIF output for GitHub code scanning
+- [x] SARIF output for GitHub code scanning (`--format sarif`, `-o`, `--exit-zero`)
 - [ ] Config file (`.patchlint.toml`) to disable rules or set severity
 - [ ] Third-party rule packs via entry points
 
