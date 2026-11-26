@@ -1,0 +1,63 @@
+name: patchlint
+description: Scan GitHub Actions workflows, Dockerfiles and docker-compose files for risky patterns, and upload the results to code scanning.
+author: RubahAnomali
+branding:
+  icon: shield
+  color: orange
+
+inputs:
+  path:
+    description: File or folder to scan.
+    required: false
+    default: "."
+  format:
+    description: Output format, one of text, json or sarif. It must be sarif when upload-sarif is true.
+    required: false
+    default: sarif
+  upload-sarif:
+    description: >-
+      Upload the SARIF report to GitHub code scanning. The calling job needs
+      `permissions: security-events: write`. Findings become alerts and do not fail
+      the job. Set to false to skip the upload and fail the step on findings instead.
+    required: false
+    default: "true"
+
+outputs:
+  sarif-file:
+    description: Path to the SARIF file, set when upload-sarif is true.
+    value: ${{ steps.scan.outputs.sarif-file }}
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+      with:
+        python-version: "3.12"
+    - name: Install patchlint
+      shell: bash
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+      run: pip install "$ACTION_PATH"
+    - name: Scan
+      id: scan
+      shell: bash
+      env:
+        PATCHLINT_PATH: ${{ inputs.path }}
+        PATCHLINT_FORMAT: ${{ inputs.format }}
+        UPLOAD_SARIF: ${{ inputs.upload-sarif }}
+      run: |
+        set -euo pipefail
+        if [ "$UPLOAD_SARIF" = "true" ]; then
+          if [ "$PATCHLINT_FORMAT" != "sarif" ]; then
+            echo "::error::upload-sarif is true, so format must be sarif (got '$PATCHLINT_FORMAT'). Set upload-sarif: false to use another format."
+            exit 1
+          fi
+          patchlint scan "$PATCHLINT_PATH" --format sarif -o patchlint.sarif --exit-zero
+          echo "sarif-file=patchlint.sarif" >> "$GITHUB_OUTPUT"
+        else
+          patchlint scan "$PATCHLINT_PATH" --format "$PATCHLINT_FORMAT"
+        fi
+    - uses: github/codeql-action/upload-sarif@915412ff23e8b7659517e607487dbeae018f2934 # v4.39.5
+      if: inputs.upload-sarif == 'true'
+      with:
+        sarif_file: patchlint.sarif
