@@ -4,7 +4,7 @@ A small, beginner-friendly security linter for config files. Every finding tells
 
 [![PyPI](https://img.shields.io/pypi/v/patchlint)](https://pypi.org/project/patchlint/) [![CI](https://github.com/RubahAnomali/patchlint/actions/workflows/ci.yml/badge.svg)](https://github.com/RubahAnomali/patchlint/actions/workflows/ci.yml)
 
-> Status: early (v0.4.0), 16 rules. Supports **Dockerfiles**, **GitHub Actions workflows** and **docker-compose files**. See the [roadmap](ROADMAP.md).
+> Status: early (v0.5.0), 16 rules. Supports **Dockerfiles**, **GitHub Actions workflows** and **docker-compose files**. See the [roadmap](ROADMAP.md).
 
 | Files | Found by a directory scan | Rule prefix |
 |---|---|---|
@@ -77,7 +77,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: RubahAnomali/patchlint@b9f43767f297b686d9625756afd30df666dc0e88 # v0.4.0
+      - uses: RubahAnomali/patchlint@59f369c7eb2d75aa4564ba345007ccaec0ae0811 # first commit with the action (v0.5.0 and later)
 ```
 
 | Input | Default | What it does |

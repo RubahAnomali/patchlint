@@ -4,6 +4,8 @@ All notable changes are listed here. The format follows [Keep a Changelog](https
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-27
+
 ### Added
 - GitHub Action (`uses: RubahAnomali/patchlint@<sha>`) that installs patchlint from the pinned commit, scans, and uploads SARIF to code scanning.
 
