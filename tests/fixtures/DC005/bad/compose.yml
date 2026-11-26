@@ -1,0 +1,6 @@
+services:
+  mirror:
+    image: example/mirror:0.9
+    cap_add:
+      - SYS_ADMIN
+      - NET_RAW

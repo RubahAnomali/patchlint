@@ -1,0 +1,8 @@
+services:
+  mirror:
+    image: example/mirror:0.9
+    cap_add:
+      - NET_ADMIN
+      - SYS_PTRACE
+  other:
+    image: nginx:1.27
