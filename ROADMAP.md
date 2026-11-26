@@ -11,6 +11,7 @@
   - [x] Compose file detection, `iter_services()` / `volume_sources()` helpers, DC001 (privileged), DC002 (Docker socket mounted)
   - [x] DC003 (host network), DC004 (secrets in `environment`), DC005 (`cap_add`), DC007 (`pid`/`ipc: host`), DC008 (seccomp/AppArmor off)
   - [ ] More rules: unpinned images (DC006), and more (see issues labelled `rule`)
+- [x] GitHub Action wrapper (`uses: RubahAnomali/patchlint@<sha>`, v0.5.0)
 - [x] SARIF output for GitHub code scanning (`--format sarif`, `-o`, `--exit-zero`)
 - [x] Config file (`.patchlint.toml` or `[tool.patchlint]`) to disable rules, exclude paths and set severity
 - [x] Third-party rule packs via the `patchlint.rules` entry point ([docs/plugins.md](docs/plugins.md))
