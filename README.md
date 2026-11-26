@@ -57,7 +57,38 @@ Unknown keys, rule ids or severities stop the scan with an error that says what 
 
 ## Show findings in GitHub's Security tab
 
-Upload SARIF to GitHub code scanning, and findings appear as alerts on the right lines, including in pull requests. Add `.github/workflows/patchlint.yml`:
+Upload SARIF to GitHub code scanning, and findings appear as alerts on the right lines, including in pull requests. The easiest way is the patchlint action. Add `.github/workflows/patchlint.yml`:
+
+```yaml
+name: patchlint
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write   # needed to upload SARIF
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: RubahAnomali/patchlint@b9f43767f297b686d9625756afd30df666dc0e88 # v0.4.0
+```
+
+| Input | Default | What it does |
+| --- | --- | --- |
+| `path` | `.` | File or folder to scan. |
+| `format` | `sarif` | `text`, `json` or `sarif`. Must be `sarif` when `upload-sarif` is `true`. |
+| `upload-sarif` | `true` | Upload the SARIF report to code scanning. The job needs `security-events: write`. |
+
+With `upload-sarif: true`, findings become code scanning alerts and the job does not fail. With `upload-sarif: false`, nothing is uploaded and the step fails when there are findings.
+
+Without the action:
 
 ```yaml
 name: patchlint
