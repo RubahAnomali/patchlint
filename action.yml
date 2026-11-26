@@ -47,6 +47,7 @@ runs:
         UPLOAD_SARIF: ${{ inputs.upload-sarif }}
       run: |
         set -euo pipefail
+        UPLOAD_SARIF="$(printf %s "$UPLOAD_SARIF" | tr "[:upper:]" "[:lower:]")"  # match if:, which ignores case
         if [ "$UPLOAD_SARIF" = "true" ]; then
           if [ "$PATCHLINT_FORMAT" != "sarif" ]; then
             echo "::error::upload-sarif is true, so format must be sarif (got '$PATCHLINT_FORMAT'). Set upload-sarif: false to use another format."
