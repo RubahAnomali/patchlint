@@ -4,6 +4,14 @@ All notable changes are listed here. The format follows [Keep a Changelog](https
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-26
+
+### Added
+- docker-compose rules:
+  - `DC005` service adds `ALL` or `SYS_ADMIN` through `cap_add` (thanks @UNMFOREVER)
+  - `DC007` service sets `pid: host` or `ipc: host` (thanks @UNMFOREVER)
+- Dockerfile rule `DL006` `apt-get update` in its own `RUN` layer (thanks @UNMFOREVER)
+
 ## [0.3.0] - 2026-11-26
 
 ### Added
