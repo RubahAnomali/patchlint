@@ -1,0 +1,9 @@
+services:
+  agent:
+    image: example/agent:1.4
+    pid: "service:sidecar"
+  shm:
+    image: example/shm:0.3
+    ipc: shareable
+  web:
+    image: nginx:1.27

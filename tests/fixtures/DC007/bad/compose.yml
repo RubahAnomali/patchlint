@@ -1,0 +1,7 @@
+services:
+  agent:
+    image: example/agent:1.4
+    pid: host
+  shm:
+    image: example/shm:0.3
+    ipc: host
