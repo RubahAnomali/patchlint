@@ -29,11 +29,12 @@ COMPOSE_NAME = re.compile(r"(docker-)?compose(\.[\w-]+)?\.ya?ml")
 
 
 def file_kind(path: Path, explicit: bool = False) -> str | None:
-    """Return "dockerfile", "workflow", "compose" or None.
+    """Return "dockerfile", "workflow", "compose", "action" or None.
 
-    Compose files are recognised by name anywhere. Other YAML only counts inside
-    `.github/workflows/` in a directory scan; a YAML file named directly on the
-    command line is treated as a workflow.
+    Compose files and composite actions (`action.yml` / `action.yaml`) are
+    recognised by name anywhere. Other YAML only counts inside `.github/workflows/`
+    in a directory scan; a YAML file named directly on the command line is treated
+    as a workflow.
     """
     name = path.name.lower()
     variant = name.startswith("dockerfile.") and path.suffix.lower() not in NOT_DOCKERFILE
@@ -44,7 +45,11 @@ def file_kind(path: Path, explicit: bool = False) -> str | None:
     if path.suffix.lower() in (".yml", ".yaml"):
         parts = [p.lower() for p in path.parts]
         in_workflows = len(parts) >= 3 and parts[-3] == ".github" and parts[-2] == "workflows"
-        if explicit or in_workflows:
+        if in_workflows:
+            return "workflow"
+        if name in ("action.yml", "action.yaml"):
+            return "action"
+        if explicit:
             return "workflow"
     return None
 
@@ -83,6 +88,7 @@ def scan(
         instructions: tuple[Instruction, ...] = ()
         workflow: YMap | None = None
         compose: YMap | None = None
+        action: YMap | None = None
         if kind == "dockerfile":
             instructions = dockerfile.parse(text)
         else:
@@ -95,14 +101,18 @@ def scan(
                 continue
             if kind == "workflow":
                 workflow = document
+            elif kind == "action":
+                action = document
             else:
                 compose = document
         lines = tuple(text.splitlines())
         for r in rules.values():
-            if r.id not in selected or r.filetype != kind:
+            if r.id not in selected or kind not in r.filetypes:
                 continue
             severity = config.severity.get(r.id, r.severity)
-            ctx = Context(path, instructions, workflow, compose, lines, r.id, severity)
+            ctx = Context(
+                path, instructions, workflow, compose, lines, r.id, severity, action=action
+            )
             findings.extend(r.check(ctx))
     findings.sort(key=lambda f: (f.path, f.line, f.rule_id))
     return findings

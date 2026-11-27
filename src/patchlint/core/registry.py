@@ -10,7 +10,7 @@ from collections.abc import Callable, Iterable
 from dataclasses import replace
 from typing import Any
 
-from patchlint.core.model import SEVERITIES, CheckFn, Rule
+from patchlint.core.model import FILETYPES, SEVERITIES, CheckFn, Rule
 
 RULES: dict[str, Rule] = {}
 
@@ -25,12 +25,20 @@ _plugins_loaded = False
 
 
 def rule(
-    id: str, title: str, severity: str, cwe: int | None = None
+    id: str,
+    title: str,
+    severity: str,
+    cwe: int | None = None,
+    extra_filetypes: tuple[str, ...] = (),
 ) -> Callable[[CheckFn], CheckFn]:
     """Register a check function as a rule.
 
     The function's docstring is the rule's documentation: explain *why* the
     pattern is dangerous and *how* to fix it.
+
+    `extra_filetypes` lists more file kinds the rule also runs on, besides the
+    one its id prefix gives, e.g. `("action",)` for a GA rule that also checks
+    composite actions.
     """
     if severity not in SEVERITIES:
         raise ValueError(f"severity must be one of {SEVERITIES}, got {severity!r}")
@@ -38,11 +46,21 @@ def rule(
     if filetype is None:
         raise ValueError(f"rule id {id!r} must start with one of {sorted(PREFIX_FILETYPES)}")
 
+    for extra in extra_filetypes:
+        if extra not in FILETYPES:
+            raise ValueError(f"extra_filetypes must be from {FILETYPES}, got {extra!r}")
+
     def decorator(fn: CheckFn) -> CheckFn:
         if id in RULES:
             raise ValueError(f"duplicate rule id {id}")
         RULES[id] = Rule(
-            id=id, title=title, severity=severity, cwe=cwe, filetype=filetype, check=fn
+            id=id,
+            title=title,
+            severity=severity,
+            cwe=cwe,
+            filetype=filetype,
+            check=fn,
+            filetypes=(filetype, *extra_filetypes),
         )
         return fn
 

@@ -25,7 +25,7 @@ def check(ctx: Context) -> Iterable[Finding]:
             yield ctx.finding(ins.line, "Image is not from the ACME registry.", "Use registry.acme.example.")
 ```
 
-- The first two letters of the id pick the file type: `DL` Dockerfiles, `GA` GitHub Actions workflows, `DC` docker-compose files.
+- The first two letters of the id pick the file type: `DL` Dockerfiles, `GA` GitHub Actions workflows, `DC` docker-compose files. A `GA` rule can also run on composite actions (`action.yml` / `action.yaml`) by passing `extra_filetypes=("action",)` to `@rule`; the document is then in `ctx.action`.
 - **Use your own suffix after the prefix** (for example `DL-acme-1`) so your ids never clash with built-in rules like `DL001`.
 - Same docstring rules as built-ins: say *why it matters* and *how to fix it*.
 

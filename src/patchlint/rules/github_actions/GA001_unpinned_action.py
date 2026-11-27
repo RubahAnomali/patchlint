@@ -10,9 +10,15 @@ from patchlint.parsers.github_actions import YMap, iter_jobs, iter_steps
 FULL_SHA = re.compile(r"[0-9a-f]{40}")
 
 
-@rule(id="GA001", title="Action not pinned to a commit SHA", severity="medium", cwe=829)
+@rule(
+    id="GA001",
+    title="Action not pinned to a commit SHA",
+    severity="medium",
+    cwe=829,
+    extra_filetypes=("action",),
+)
 def check(ctx: Context) -> Iterable[Finding]:
-    """A workflow uses an action or reusable workflow by tag or branch, not a full commit SHA.
+    """A step or job uses an action or reusable workflow by tag or branch, not a commit SHA.
 
     Why it matters: tags and branches can be moved. If an action's repository is
     compromised, a re-pointed tag runs the attacker's code inside your workflow,
@@ -23,11 +29,12 @@ def check(ctx: Context) -> Iterable[Finding]:
 
         - uses: actions/checkout@<40-character-sha> # v4.2.2
     """
-    if ctx.workflow is None:
+    doc = ctx.workflow if ctx.workflow is not None else ctx.action
+    if doc is None:
         return
-    for _job_id, job in iter_jobs(ctx.workflow):
+    for _job_id, job in iter_jobs(doc):
         yield from _check_uses(ctx, job)  # reusable workflow: jobs.<id>.uses
-    for _job_id, step in iter_steps(ctx.workflow):
+    for _job_id, step in iter_steps(doc):
         yield from _check_uses(ctx, step)
 
 

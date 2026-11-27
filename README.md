@@ -4,12 +4,13 @@ A small, beginner-friendly security linter for config files. Every finding tells
 
 [![PyPI](https://img.shields.io/pypi/v/patchlint)](https://pypi.org/project/patchlint/) [![CI](https://github.com/RubahAnomali/patchlint/actions/workflows/ci.yml/badge.svg)](https://github.com/RubahAnomali/patchlint/actions/workflows/ci.yml)
 
-> Status: early (v0.5.0), 16 rules. Supports **Dockerfiles**, **GitHub Actions workflows** and **docker-compose files**. See the [roadmap](ROADMAP.md).
+> Status: early (v0.5.0), 16 rules. Supports **Dockerfiles**, **GitHub Actions workflows**, **composite actions** and **docker-compose files**. See the [roadmap](ROADMAP.md).
 
 | Files | Found by a directory scan | Rule prefix |
 |---|---|---|
 | Dockerfiles | `Dockerfile`, `Dockerfile.*`, `*.dockerfile` | `DL` |
 | GitHub Actions workflows | `.github/workflows/*.yml` / `*.yaml` | `GA` |
+| GitHub composite actions | `action.yml` / `action.yaml` (any folder); only the step rules GA001 and GA002 run here | `GA` |
 | docker-compose files | `compose.yml`, `docker-compose.yml`, `docker-compose.*.yml` (any folder) | `DC` |
 
 ## Install and try

@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 import yaml
 
+from patchlint.core.registry import RULES, rule
 from patchlint.core.runner import file_kind, scan
 from patchlint.parsers.github_actions import YList, YMap, iter_steps, parse
 
@@ -36,6 +37,11 @@ def test_file_kind_detection() -> None:
     # Source files *about* Dockerfiles are not Dockerfiles.
     assert file_kind(Path("src/parsers/dockerfile.py")) is None
     assert file_kind(Path("docs/Dockerfile.md")) is None
+    # Composite actions are recognised by name anywhere, in any case.
+    assert file_kind(Path("repo/action.yml")) == "action"
+    assert file_kind(Path("repo/sub/Action.YAML")) == "action"
+    assert file_kind(Path("repo/action.yml"), explicit=True) == "action"
+    assert file_kind(Path("repo/.github/workflows/action.yml")) == "workflow"
 
 
 def test_ga002_points_at_the_injected_line(tmp_path: Path) -> None:
@@ -64,3 +70,83 @@ def test_directory_scan_finds_workflows(tmp_path: Path) -> None:
     )
     (tmp_path / "other.yml").write_text("uses: not/a-workflow@v1\n", encoding="utf-8")
     assert [f.rule_id for f in scan(tmp_path, only=["GA001"])] == ["GA001"]
+
+
+def test_iter_steps_covers_composite_action_steps() -> None:
+    doc = parse("runs:\n  using: composite\n  steps:\n    - run: a\n    - uses: b@v1\n")
+    assert doc is not None
+    steps = list(iter_steps(doc))
+    assert [job_id for job_id, _ in steps] == ["", ""]
+    assert [s.line for _, s in steps] == [4, 5]
+
+
+WORKFLOW_ONLY_ACTION = """\
+on: pull_request_target
+jobs:
+  call:
+    uses: other/repo/.github/workflows/x.yml@0123456789abcdef0123456789abcdef01234567
+    secrets: inherit
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@0123456789abcdef0123456789abcdef01234567
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
+"""
+
+
+def test_workflow_only_rules_skip_actions(tmp_path: Path) -> None:
+    ids = ["GA003", "GA004", "GA008"]
+    # Sanity check: the same text does trip them as a workflow.
+    wf = tmp_path / "wf.yml"
+    wf.write_text(WORKFLOW_ONLY_ACTION, encoding="utf-8")
+    assert {f.rule_id for f in scan(wf, only=ids)} == set(ids)
+    action_dir = tmp_path / "pkg"
+    action_dir.mkdir()
+    (action_dir / "action.yml").write_text(WORKFLOW_ONLY_ACTION, encoding="utf-8")
+    assert scan(action_dir, only=ids) == []
+
+
+def test_non_composite_action_has_no_findings(tmp_path: Path) -> None:
+    (tmp_path / "action.yml").write_text(
+        "name: x\ndescription: y\nruns:\n  using: node20\n  main: index.js\n", encoding="utf-8"
+    )
+    assert scan(tmp_path) == []
+
+
+def test_action_inputs_are_untrusted_only_in_actions(tmp_path: Path) -> None:
+    body = 'echo "${{ inputs.x }}"'
+    wf = tmp_path / "wf.yml"
+    wf.write_text(
+        f"on: workflow_dispatch\njobs:\n  a:\n    steps:\n      - run: {body}\n", encoding="utf-8"
+    )
+    assert scan(wf, only=["GA002"]) == []
+    action = tmp_path / "action.yml"
+    action.write_text(
+        f"runs:\n  using: composite\n  steps:\n    - run: {body}\n      shell: bash\n",
+        encoding="utf-8",
+    )
+    (finding,) = scan(action, only=["GA002"])
+    assert finding.line == 4 and "inputs.x" in finding.message
+
+
+def test_rule_rejects_unknown_extra_filetype() -> None:
+    before = set(RULES)
+    with pytest.raises(ValueError, match="extra_filetypes"):
+        rule("GA999", "t", "low", extra_filetypes=("nope",))
+    assert set(RULES) == before
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "",
+        "- a\n- list\n",
+        "runs: composite\n",
+        "runs:\n  using: composite\n  steps: run-me\n",
+        "runs:\n  using: composite\n  steps:\n    - just a string\n    - null\n",
+    ],
+)
+def test_malformed_action_is_skipped(tmp_path: Path, text: str) -> None:
+    (tmp_path / "action.yml").write_text(text, encoding="utf-8")
+    assert scan(tmp_path) == []
