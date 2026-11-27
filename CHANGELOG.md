@@ -4,6 +4,10 @@ All notable changes are listed here. The format follows [Keep a Changelog](https
 
 ## [Unreleased]
 
+### Added
+- Composite actions (`action.yml` / `action.yaml`) are now scanned. GA001 and GA002 check their `runs.steps`, and inside an action GA002 also treats `${{ inputs.* }}` as untrusted.
+- `@rule(extra_filetypes=...)` lets a rule run on more than one file type.
+
 ## [0.5.0] - 2026-11-27
 
 ### Added

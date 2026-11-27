@@ -27,6 +27,7 @@ The rule id prefix decides which files the rule checks: `DL` for Dockerfiles, `G
 3. Implement `check(ctx)` and `yield ctx.finding(line, message, fix)` for each problem:
    - Dockerfile rules loop over `ctx.instructions` (each has `.line`, `.cmd`, `.args`).
    - Workflow rules use `ctx.workflow` with the helpers `iter_jobs()` and `iter_steps()`.
+     `iter_steps()` also walks a composite action's `runs.steps`. A GA rule that checks steps can run on `action.yml` files too: pass `extra_filetypes=("action",)` to `@rule` and read `ctx.workflow if ctx.workflow is not None else ctx.action` (see GA001).
    - Compose rules use `ctx.compose` with `iter_services()` and `volume_sources()` from `patchlint.parsers.compose`.
    - In workflows and compose files, every mapping has `.line` and `.key_lines["some_key"]`, so findings point at the right line.
 4. Write the docstring with a "Why it matters" and a "Fix" section. It is the rule's documentation (`patchlint explain DL003`).
