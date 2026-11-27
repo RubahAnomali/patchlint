@@ -69,10 +69,18 @@ def iter_jobs(workflow: YMap) -> Iterator[tuple[str, YMap]]:
 
 
 def iter_steps(workflow: YMap) -> Iterator[tuple[str, YMap]]:
-    """Yield (job_id, step) for every step of every job."""
+    """Yield (job_id, step) for every step of every job.
+
+    Also yields the steps of a composite action (`runs.steps`), with "" as the job id.
+    """
     for job_id, job in iter_jobs(workflow):
         steps = job.get("steps")
         if isinstance(steps, YList):
             for step in steps:
                 if isinstance(step, YMap):
                     yield job_id, step
+    runs = workflow.get("runs")
+    if isinstance(runs, YMap) and isinstance(runs.get("steps"), YList):
+        for step in runs["steps"]:
+            if isinstance(step, YMap):
+                yield "", step

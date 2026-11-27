@@ -25,8 +25,17 @@ UNTRUSTED = re.compile(
     r"))"
 )
 
+# In a composite action the caller sets `inputs.*`, so treat them as untrusted too.
+ACTION_INPUT = re.compile(r"(?<![\w.])inputs\.[\w-]+")
 
-@rule(id="GA002", title="Untrusted input in a run script", severity="high", cwe=78)
+
+@rule(
+    id="GA002",
+    title="Untrusted input in a run script",
+    severity="high",
+    cwe=78,
+    extra_filetypes=("action",),
+)
 def check(ctx: Context) -> Iterable[Finding]:
     """A `run:` script pastes attacker-controlled data in with `${{ ... }}`.
 
@@ -40,15 +49,25 @@ def check(ctx: Context) -> Iterable[Finding]:
             TITLE: ${{ github.event.issue.title }}
           run: echo "New issue: $TITLE"
     """
-    if ctx.workflow is None:
+    doc = ctx.workflow if ctx.workflow is not None else ctx.action
+    if doc is None:
         return
-    for _job_id, step in iter_steps(ctx.workflow):
+    for _job_id, step in iter_steps(doc):
         script = step.get("run")
         if not isinstance(script, str):
             continue
         start = step.key_lines["run"]
         for match in EXPRESSION.finditer(script):
             source = UNTRUSTED.search(match.group(1))
+            if source is None and ctx.action is not None:
+                caller = ACTION_INPUT.search(match.group(1))
+                if caller:
+                    yield ctx.finding(
+                        ctx.line_of(match.group(0), start),
+                        f"`{caller.group(0)}` is set by the action's caller and is pasted "
+                        "into the script.",
+                        "Move it to `env:` and use the variable, quoted, in the script.",
+                    )
             if source:
                 yield ctx.finding(
                     ctx.line_of(match.group(0), start),

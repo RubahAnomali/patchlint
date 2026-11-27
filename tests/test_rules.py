@@ -37,3 +37,19 @@ def test_good_fixture_is_clean(rule_id: str) -> None:
 def test_rule_is_documented(rule_id: str) -> None:
     doc = load_rules()[rule_id].doc
     assert "Why it matters" in doc and "Fix" in doc
+
+
+# Rules that also run on composite actions need an action fixture pair.
+ACTION_RULE_IDS = [i for i in RULE_IDS if "action" in load_rules()[i].filetypes]
+
+
+@pytest.mark.parametrize("rule_id", ACTION_RULE_IDS)
+def test_bad_action_fixture_triggers_rule(rule_id: str) -> None:
+    findings = scan(fixture_file(rule_id, "bad-action"), only=[rule_id])
+    assert any(f.rule_id == rule_id for f in findings)
+
+
+@pytest.mark.parametrize("rule_id", ACTION_RULE_IDS)
+def test_good_action_fixture_is_clean(rule_id: str) -> None:
+    assert scan(fixture_file(rule_id, "good-action"), only=[rule_id]) == []
+    assert scan(fixture_file(rule_id, "good-action")) == []

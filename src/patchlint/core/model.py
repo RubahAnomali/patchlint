@@ -9,7 +9,7 @@ from pathlib import Path
 from patchlint.parsers.github_actions import YMap
 
 SEVERITIES = ("low", "medium", "high")
-FILETYPES = ("dockerfile", "workflow", "compose")
+FILETYPES = ("dockerfile", "workflow", "compose", "action")
 
 
 @dataclass(frozen=True)
@@ -36,7 +36,9 @@ class Context:
     """What a rule's ``check`` function receives.
 
     Dockerfile rules use ``instructions``; workflow rules use ``workflow``;
-    docker-compose rules use ``compose``.
+    docker-compose rules use ``compose``. A rule that opted in to composite
+    actions (``extra_filetypes=("action",)``) also gets ``action``, the parsed
+    ``action.yml``; ``workflow`` is None for those files.
     ``lines`` is the raw file text, one entry per line.
     """
 
@@ -47,6 +49,7 @@ class Context:
     lines: tuple[str, ...]
     _rule_id: str
     _severity: str
+    action: YMap | None = None
 
     def finding(self, line: int, message: str, fix: str) -> Finding:
         return Finding(self._rule_id, self._severity, message, str(self.path), line, fix)
@@ -71,6 +74,11 @@ class Rule:
     filetype: str
     check: CheckFn
     origin: str = "patchlint"  # the package that provides the rule (plugins set their own)
+    filetypes: tuple[str, ...] = ()  # every kind it runs on; empty means just `filetype`
+
+    def __post_init__(self) -> None:
+        if not self.filetypes:
+            object.__setattr__(self, "filetypes", (self.filetype,))
 
     @property
     def doc(self) -> str:
