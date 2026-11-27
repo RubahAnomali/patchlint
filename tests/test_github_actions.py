@@ -135,3 +135,18 @@ def test_rule_rejects_unknown_extra_filetype() -> None:
     with pytest.raises(ValueError, match="extra_filetypes"):
         rule("GA999", "t", "low", extra_filetypes=("nope",))
     assert set(RULES) == before
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "",
+        "- a\n- list\n",
+        "runs: composite\n",
+        "runs:\n  using: composite\n  steps: run-me\n",
+        "runs:\n  using: composite\n  steps:\n    - just a string\n    - null\n",
+    ],
+)
+def test_malformed_action_is_skipped(tmp_path: Path, text: str) -> None:
+    (tmp_path / "action.yml").write_text(text, encoding="utf-8")
+    assert scan(tmp_path) == []
