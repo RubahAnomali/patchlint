@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  web:
+    image: nginx:1.21
+    ports:
+      - "80:80"
+  db:
+    image: postgres:14.2-alpine
+    environment:
+      POSTGRES_PASSWORD: example
+  api:
+    build: .
+  another:
+    image: myapp@sha256:abcd1234
+  no-image:
+    build: ./no-image
